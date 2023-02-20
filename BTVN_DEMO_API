@@ -1,0 +1,68 @@
+const express = require('express')
+const app = express()
+
+app.use(express.json())
+
+const mysql = require('mysql2')
+const connection = mysql.createConnection({
+    host:'localhost',
+    user:'root',
+    password:'12345678',
+    database:'Phim'
+})
+
+connection.connect()
+
+app.get('/films',(request, response) => {
+    connection.query("SELECT * FROM BANG_PHIM",(err, data) =>{
+        if (err) {
+            response.send("co loi xay ra ")
+        } else {
+            response.send(data)
+        }
+    })
+
+})
+app.post('/films',(request, response) => {
+    connection.query("INSERT INTO BANG_PHIM (ID_PHIM, TEN_PHIM, THE_LOAI, DANH_MUC, NGAY_SAN_XUAT, GIA_PHIM)VALUES (?, ?, ?, ?, ?, ?)", [
+        request.body.ID_PHIM, request.body.TEN_PHIM, request.body.THE_LOAI, request.body.DANH_MUC, request.body.NGAY_SAN_XUAT, request.body.GIA_PHIM
+    ], (err) => {
+        if(err) {
+            response.send(err)
+        } else {
+            response.send("them thanh cong")
+        }
+    })
+})
+
+
+app.listen(3000,() =>
+{
+    console.log("Server app listening on port 3000")
+})
+
+app.put('/film/:id', (request, response) => {
+    console.log(request.body)
+    connection.query('UPDATE `BANG_PHIM` SET `TEN_PHIM`=(?),`THE_LOAI`=(?),`DANH_MUC`=(?),`NGAY_SAN_XUAT`=(?),`GIA_PHIM`=(?) WHERE `ID_PHIM` = (?)', 
+    [ request.body.TEN_PHIM, request.body.THE_LOAI,request.body.DANH_MUC, request.body.NGAY_SAN_XUAT, request.body.GIA_PHIM, request.body.ID_PHIM], (err) => {
+    if (err) {
+        console.log("error")
+        response.send(err);
+    } else {
+        console.log("Sua thanh cong")
+        response.send("Sua thanh cong!");
+    }
+    })
+})
+
+app.delete('/film/:id',(request, response) => {
+    connection.query("DELETE FROM `BANG_PHIM` WHERE ID_PHIM =(?)",) [
+        request.params.id
+    ], (err) => {
+        if(err) {
+            response.send(err)
+        } else {
+            response.send("xoa thanh cong")
+        }
+    }
+})
